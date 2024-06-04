@@ -1,15 +1,15 @@
-#
 # Build stage
-#
-FROM maven:3.6.0-jdk-11-slim AS build
-COPY src /home/app/src
-COPY pom.xml /home/app
-RUN mvn -f /home/app/pom.xml clean package
+FROM maven:3.9.1-eclipse-temurin-22 AS build
+WORKDIR /home/app
+COPY .mvn .mvn
+COPY mvnw .
+COPY src src
+COPY pom.xml .
+RUN chmod +x mvnw && ./mvnw clean package
 
-#
 # Package stage
-#
-FROM openjdk:22-jre-slim
+FROM eclipse-temurin:22-jre
+WORKDIR /usr/local/lib
 COPY --from=build /home/app/target/getyourway-0.0.1-SNAPSHOT.jar /usr/local/lib/demo.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/usr/local/lib/demo.jar"]
+ENTRYPOINT ["java", "-jar", "/usr/local/lib/demo.jar"]
